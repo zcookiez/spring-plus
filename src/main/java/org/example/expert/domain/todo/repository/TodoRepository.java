@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public interface TodoRepository extends JpaRepository<Todo, Long> {
+public interface TodoRepository extends JpaRepository<Todo, Long>, TodoRepositoryCustom {
 
     @Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user u ORDER BY t.modifiedAt DESC")
     Page<Todo> findAllByOrderByModifiedAtDesc(Pageable pageable);
@@ -27,9 +27,4 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     @Query(value = "SELECT t FROM Todo t LEFT JOIN FETCH t.user u WHERE t.weather = :weather AND DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate ORDER BY t.modifiedAt DESC",
            countQuery = "SELECT count(t.id) FROM Todo t WHERE t.weather = :weather AND DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate")
     Page<Todo> findByWeatherAndPeriod(@Param("weather") String weather, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, Pageable pageable);
-
-    @Query("SELECT t FROM Todo t " +
-            "LEFT JOIN t.user " +
-            "WHERE t.id = :todoId")
-    Optional<Todo> findByIdWithUser(@Param("todoId") Long todoId);
 }

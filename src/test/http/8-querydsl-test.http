@@ -1,0 +1,50 @@
+### 1. 테스트 유저 생성 (회원가입)
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "querydsl_test@example.com",
+  "password": "Password123!",
+  "userRole": "USER",
+  "nickname": "쿼리디에스엘"
+}
+
+> {%
+    client.global.set("token", response.body.bearerToken);
+%}
+
+
+### 2. 로그인
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "email": "querydsl_test@example.com",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("token", response.body.bearerToken);
+%}
+
+
+### 3. 새로운 할 일(Todo) 생성
+POST http://localhost:8080/todos
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "title": "QueryDSL 테스트 할 일",
+  "contents": "이 할 일을 단건 조회할 것입니다."
+}
+
+> {%
+    client.global.set("todoId", response.body.id);
+%}
+
+
+### 4. 할 일 단건 조회 (QueryDSL 로직 및 N+1 해결 확인용)
+# 이 API를 호출한 뒤 IntelliJ의 실행(Run) 탭 콘솔 로그를 확인하세요!
+# Hibernate SQL 로그에 SELECT 쿼리가 단 1번만 나가는지(join이 잘 걸렸는지) 확인하면 됩니다.
+GET http://localhost:8080/todos/{{todoId}}
+Authorization: {{token}}
