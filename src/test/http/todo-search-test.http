@@ -1,0 +1,97 @@
+### 0. 로그인 (테스트 전 토큰 발급용)
+# 만약 토큰이 만료되었다면 아래 요청을 먼저 실행하여 토큰을 갱신하세요.
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "email": "nickname_test@example.com",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("token", response.body.bearerToken);
+%}
+
+### 1. 검색 조건 없이 전체 할 일 조회
+GET http://localhost:8080/todos?page=1&size=10
+Authorization: {{token}}
+
+> {%
+    client.log("\n======================================");
+    client.log("🔍 [검색 조건]: 없음 (전체 조회)");
+    client.log("📌 [검색 결과]: 총 " + response.body.content.length + "건");
+    response.body.content.forEach(function(todo, index) {
+        client.log("  " + (index+1) + ". 제목: [" + todo.title + "] | 날씨: " + todo.weather + " | 수정일: " + todo.modifiedAt);
+    });
+    client.log("======================================\n");
+%}
+
+### 2. 날씨 조건으로만 검색 (weather)
+GET http://localhost:8080/todos?page=1&size=10&weather=Blustery
+Authorization: {{token}}
+
+> {%
+    client.log("\n======================================");
+    client.log("🔍 [검색 조건]: 날씨='Blustery'");
+    client.log("📌 [검색 결과]: 총 " + response.body.content.length + "건");
+    response.body.content.forEach(function(todo, index) {
+        client.log("  " + (index+1) + ". 제목: [" + todo.title + "] | 날씨: " + todo.weather + " | 수정일: " + todo.modifiedAt);
+    });
+    client.log("======================================\n");
+%}
+
+### 3. 날짜(기간) 조건으로만 검색 (startDate, endDate 모두 입력)
+GET http://localhost:8080/todos?page=1&size=10&startDate=2023-01-01&endDate=2026-08-31
+Authorization: {{token}}
+
+> {%
+    client.log("\n======================================");
+    client.log("🔍 [검색 조건]: 기간 (2023-01-01 ~ 2026-08-31)");
+    client.log("📌 [검색 결과]: 총 " + response.body.content.length + "건");
+    response.body.content.forEach(function(todo, index) {
+        client.log("  " + (index+1) + ". 제목: [" + todo.title + "] | 날씨: " + todo.weather + " | 수정일: " + todo.modifiedAt);
+    });
+    client.log("======================================\n");
+%}
+
+### 4. 시작일만 입력해서 검색 (startDate)
+GET http://localhost:8080/todos?page=1&size=10&startDate=2026-09-01
+Authorization: {{token}}
+
+> {%
+    client.log("\n======================================");
+    client.log("🔍 [검색 조건]: 시작일 (2026-09-01 이후)");
+    client.log("📌 [검색 결과]: 총 " + response.body.content.length + "건");
+    response.body.content.forEach(function(todo, index) {
+        client.log("  " + (index+1) + ". 제목: [" + todo.title + "] | 날씨: " + todo.weather + " | 수정일: " + todo.modifiedAt);
+    });
+    client.log("======================================\n");
+%}
+
+### 5. 종료일만 입력해서 검색 (endDate)
+GET http://localhost:8080/todos?page=1&size=10&endDate=2026-12-31
+Authorization: {{token}}
+
+> {%
+    client.log("\n======================================");
+    client.log("🔍 [검색 조건]: 종료일 (2026-12-31 이전)");
+    client.log("📌 [검색 결과]: 총 " + response.body.content.length + "건");
+    response.body.content.forEach(function(todo, index) {
+        client.log("  " + (index+1) + ". 제목: [" + todo.title + "] | 날씨: " + todo.weather + " | 수정일: " + todo.modifiedAt);
+    });
+    client.log("======================================\n");
+%}
+
+### 6. 날씨와 날짜(기간) 조건 모두 포함해서 검색
+GET http://localhost:8080/todos?page=1&size=10&weather=Light Rain Showers&startDate=2023-01-01&endDate=2026-08-31
+Authorization: {{token}}
+
+> {%
+    client.log("\n======================================");
+    client.log("🔍 [검색 조건]: 날씨='Light Rain Showers' AND 기간 (2023-01-01 ~ 2026-08-31)");
+    client.log("📌 [검색 결과]: 총 " + response.body.content.length + "건");
+    response.body.content.forEach(function(todo, index) {
+        client.log("  " + (index+1) + ". 제목: [" + todo.title + "] | 날씨: " + todo.weather + " | 수정일: " + todo.modifiedAt);
+    });
+    client.log("======================================\n");
+%}
