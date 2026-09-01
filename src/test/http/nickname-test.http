@@ -1,0 +1,52 @@
+### 1. 회원가입 (Signup)
+# 새로 추가된 nickname 필드를 포함하여 테스트합니다.
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "nickname_test@example.com",
+  "password": "Password123!",
+  "userRole": "USER",
+  "nickname": "멋진닉네임"
+}
+
+> {%
+    // 응답으로 받은 JWT 토큰을 전역 변수로 저장합니다.
+    client.global.set("token", response.body.bearerToken);
+%}
+
+### 2. 로그인 (Signin)
+# 생성한 계정으로 로그인을 테스트합니다.
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "email": "nickname_test@example.com",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("token", response.body.bearerToken);
+%}
+
+### 3. 유저 정보 조회 (User API)
+# 회원가입 시 받은 ID를 직접 입력하여 조회합니다. (여기서는 ID 1 가정)
+# 응답에 nickname이 잘 포함되어 있는지 확인합니다.
+GET http://localhost:8080/users/2
+Authorization: {{token}}
+
+### 4. 할 일(Todo) 생성
+# JWT에서 nickname을 정상 추출하는지 확인하기 위해 Todo를 생성합니다.
+POST http://localhost:8080/todos
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "title": "새로운 할 일",
+  "contents": "이것은 테스트 할 일입니다."
+}
+
+### 5. 할 일(Todo) 단건 조회
+# 응답의 user 정보 안에 nickname이 잘 내려오는지 확인합니다.
+GET http://localhost:8080/todos/3
+Authorization: {{token}}
