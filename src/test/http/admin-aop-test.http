@@ -1,0 +1,24 @@
+### 1. 관리자(ADMIN) 계정으로 회원가입
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "admin_aop@example.com",
+  "password": "Password123!",
+  "userRole": "ADMIN",
+  "nickname": "어드민"
+}
+
+> {%
+    client.global.set("admin_token", response.body.bearerToken);
+%}
+
+### 2. 일반 유저(ID: 1) 권한 변경 API 호출 (AOP 동작 확인용)
+# 위에서 가입한 관리자 계정의 토큰을 가지고 권한 변경 API를 호출합니다.
+PATCH http://localhost:8080/admin/users/3
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "role": "USER"
+}
