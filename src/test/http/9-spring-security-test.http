@@ -1,0 +1,85 @@
+### 1. 토큰 없이 인증 필요한 API 찔러보기 (실패해야 정상)
+# JWT 토큰이 없으므로 Spring Security 필터에서 차단되어야 합니다.
+GET http://localhost:8080/todos
+
+
+### 2. 일반 유저(USER) 계정으로 회원가입
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "user_security@example.com",
+  "password": "Password123!",
+  "userRole": "USER",
+  "nickname": "일반유저"
+}
+
+> {%
+    client.global.set("user_token", response.body.bearerToken);
+%}
+
+
+### 3. 로그인 (위에서 에러나면 이걸로 로그인)
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "email": "user_security@example.com",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("user_token", response.body.bearerToken);
+%}
+
+
+### 4. 일반 유저(USER)가 관리자(ADMIN) API 접근해보기 (403 Forbidden 에러 나야 정상)
+# USER 권한을 가졌으므로 /admin/** 경로에 접근하면 시큐리티가 인가(Authorization) 거부를 해야 합니다.
+PATCH http://localhost:8080/admin/users/1
+Content-Type: application/json
+Authorization: {{user_token}}
+
+{
+  "role": "ADMIN"
+}
+
+
+### 5. 관리자(ADMIN) 계정으로 회원가입
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "admin_security@example.com",
+  "password": "Password123!",
+  "userRole": "ADMIN",
+  "nickname": "관리자"
+}
+
+> {%
+    client.global.set("admin_token", response.body.bearerToken);
+%}
+
+
+### 6. 관리자(ADMIN) 계정으로 로그인 (위에서 에러나면 이걸로 로그인)
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "email": "admin_security@example.com",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("admin_token", response.body.bearerToken);
+%}
+
+
+### 7. 관리자(ADMIN) 계정으로 관리자 API 접근해보기 (200 OK 성공해야 정상)
+# ADMIN 권한을 가졌으므로 /admin/** 경로에 정상적으로 접근되어야 합니다!
+PATCH http://localhost:8080/admin/users/1
+Content-Type: application/json
+Authorization: {{admin_token}}
+
+{
+  "role": "USER"
+}
