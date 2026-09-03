@@ -1,0 +1,59 @@
+### 0-1. 회원가입 (테스트용 계정 생성)
+POST http://localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "email": "testuser@test.com",
+  "password": "Password123!",
+  "userRole": "USER",
+  "nickname": "테스터"
+}
+
+### 0-2. 로그인 (토큰 발급 받기 및 자동 저장)
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "email": "testuser@test.com",
+  "password": "Password123!"
+}
+
+> {%
+    // 로그인 성공 시 응답받은 bearerToken을 auth_token 변수에 자동으로 저장합니다!
+    client.global.set("auth_token", response.body.bearerToken);
+%}
+
+### 1. 조건 없이 전체 검색 (기본 페이징 적용 - page=1, size=10)
+GET http://localhost:8080/todos/search
+Accept: application/json
+Authorization:  {{auth_token}}
+
+### 2. 키워드로 제목 검색
+GET http://localhost:8080/todos/search?keyword=QueryDSL
+Accept: application/json
+Authorization:  {{auth_token}}
+
+### 3. 담당자 닉네임으로 검색
+GET http://localhost:8080/todos/search?nickname=엔플러스원
+Accept: application/json
+Authorization:  {{auth_token}}
+
+### 4. 생성일 범위로 검색 (시작일 ~ 종료일)
+GET http://localhost:8080/todos/search?startDate=2026-08-31&endDate=2026-09-02
+Accept: application/json
+Authorization:  {{auth_token}}
+
+### 5. 생성일 단건 검색 (특정 날짜 이후)
+GET http://localhost:8080/todos/search?startDate=2026-09-02
+Accept: application/json
+Authorization: {{auth_token}}
+
+### 6. 복합 조건 검색 (키워드 + 날짜 + 닉네임)
+GET http://localhost:8080/todos/search?keyword=N+1&startDate=2026-09-01&nickname=엔플러스원
+Accept: application/json
+Authorization: {{auth_token}}
+
+### 7. 페이징 테스트 (2페이지, 5개씩 보기)
+GET http://localhost:8080/todos/search?page=1&size=5
+Accept: application/json
+Authorization: {{auth_token}}

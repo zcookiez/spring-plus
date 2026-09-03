@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
+import org.example.expert.domain.todo.dto.response.TodoSearchResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -98,5 +99,18 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         );
+    }
+
+    public Page<TodoSearchResponse> searchTodos(
+            String keyword,
+            LocalDate startDate,
+            LocalDate endDate,
+            String nickname,
+            int page,
+            int size
+    ) {
+        // 기존 코드 컨벤션에 맞춰 page는 1부터 시작한다고 가정
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return todoRepository.searchTodos(keyword, startDate, endDate, nickname, pageable);
     }
 }
