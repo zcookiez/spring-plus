@@ -1,4 +1,4 @@
-﻿# SPRING PLUS (코드 개선 프로젝트)
+# SPRING PLUS (코드 개선 프로젝트)
 
 본 프로젝트는 기존에 작성된 레거시 코드의 버그를 수정하고, 성능을 최적화하며, 최신 기술 스택으로 마이그레이션하는 리팩토링 과제를 수행한 결과물입니다.
 
@@ -47,3 +47,16 @@
 - 수동으로 구현되어 있던 커스텀 `JwtFilter`와 `AuthUserArgumentResolver`를 모두 삭제하고, **Spring Security** 아키텍처로 마이그레이션했습니다.
 - JWT 환경에 맞춰 세션(`STATELESS`)을 비활성화한 `SecurityConfig`를 구축하고, URL별 권한 제어(`hasAuthority("ADMIN")`) 로직을 적용했습니다.
 - `JwtSecurityFilter`를 새로 구현하여 시큐리티 체인에 장착하고, 컨트롤러의 모든 `@Auth` 커스텀 어노테이션을 공식 `@AuthenticationPrincipal`로 일괄 교체했습니다.
+
+### [Level 3] 심화 기능 구현
+**10. QueryDSL을 활용한 동적 검색 및 페이징 기능 구현**
+- 🧪 **Test File:** [10-todo-search.http](./src/test/http/10-todo-search.http)
+- 할 일(Todo) 목록 검색 API를 QueryDSL을 활용하여 새로 구현했습니다.
+- 검색 키워드(일정 제목 부분 일치), 생성일 범위(`startDate`, `endDate`), 담당자 닉네임(부분 일치)을 조합하여 검색이 가능하도록 동적 쿼리(`BooleanExpression`)를 적용했습니다.
+- 조회용 DTO(`TodoSearchResponse`)에 `@QueryProjection`을 적용하여 컴파일 시점에 타입 안정성을 보장하고, `PageableExecutionUtils`를 활용하여 불필요한 Count 쿼리를 생략하는 로직으로 작성하였습니다.
+
+**11. Transaction 심화 (매니저 등록 로그 독립 트랜잭션 처리)**
+- 🧪 **Test File:** [11.manager-log.http](./src/test/http/11.manager-log.http)
+- 매니저 등록 요청이 들어올 때마다 해당 요청을 `logs` 테이블에 남기되, **메인 로직(매니저 등록)이 실패하여 롤백되더라도 로그는 무조건 저장되도록** 구현했습니다.
+- Spring AOP(`ManagerLoggingAspect`)를 도입하여 비즈니스 로직과 로그 기록 로직을 완벽하게 분리(관심사 분리)했습니다.
+- `LogService`의 저장 메서드에 **`@Transactional(propagation = Propagation.REQUIRES_NEW)`** 옵션을 부여하여, 부모 트랜잭션과 무관한 완전 독립적인 새로운 트랜잭션을 생성하도록 처리했습니다.
