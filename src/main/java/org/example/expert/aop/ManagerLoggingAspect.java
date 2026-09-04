@@ -30,6 +30,12 @@ public class ManagerLoggingAspect {
         String logMessage = String.format("매니저 등록 요청 - 일정 ID: %d, 요청 유저 ID: %d, 등록할 매니저 ID: %d",
                 todoId, authUser.getId(), request.getManagerUserId());
         
-        logService.saveLog(logMessage);
+        try {
+            logService.saveLog(logMessage);
+        } catch (Exception e) {
+            // 로그 저장 중 에러가 발생해도 메인 비즈니스 로직(매니저 등록)에 영향을 주지 않도록 예외를 삼킵니다(Swallow).
+            // (실무에서는 콘솔이나 외부 에러 수집기에만 조용히 알림을 보냅니다)
+            System.err.println("로그 저장 실패 (메인 로직은 정상 진행됩니다): " + e.getMessage());
+        }
     }
 }
