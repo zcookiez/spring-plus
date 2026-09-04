@@ -4,6 +4,22 @@
 
 ---
 
+## 🎯 주요 리팩토링 포커스
+
+**1. 기존 시스템과의 일관성(Convention) 유지**
+*   새로운 도메인을 추가할 때 기존 테이블 명명 규칙(복수형)을 준수하여 `logs`로 통일했습니다.
+*   신규 검색 API(`searchTodos`) 구현 시 기존 API(`getTodos`)의 정렬 기준(`modifiedAt`)과 날짜 비교 방식을 그대로 승계하여, 프로젝트 전반의 코드 결(이질감 없는 구조)을 유지했습니다.
+
+**2. 잠재적 버그 차단 및 페이징 안정성(Data Integrity) 확보**
+*   시간(Timestamp) 컬럼으로 단일 정렬할 때 동일 시간대 데이터에서 발생하는 페이징 꼬임(Pagination Drift) 현상을 파악했습니다.
+*   이를 해결하기 위해 신규 쿼리뿐만 아니라 기존 레거시 페이징 쿼리 전체에 2차 고유 정렬 조건(`id DESC`)을 추가하여 데이터 중복 및 누락을 원천 차단했습니다.
+
+**3. 사이드 이펙트(Side-Effect) 제어와 방어적 프로그래밍**
+*   AOP와 트랜잭션 전파 옵션(`REQUIRES_NEW`)을 활용하여 부가 기능(로깅)과 핵심 비즈니스 로직(매니저 등록)의 트랜잭션을 철저히 분리했습니다.
+*   나아가 로그 DB 저장에 실패하더라도 예외 전파(Exception Propagation)로 인해 메인 비즈니스가 롤백되는 현상을 막기 위해, Aspect 내부에 `try-catch` 방어 로직을 적용했습니다.
+
+---
+
 ### [Level 1] 버그 수정 및 기본 기능 강화
 **1. `@Transactional` 버그 수정**
 - 🧪 **Test File:** [1-transactional-test.http](./src/test/http/1-transactional-test.http)
