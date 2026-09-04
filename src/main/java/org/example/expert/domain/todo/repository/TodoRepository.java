@@ -11,18 +11,18 @@ import java.time.LocalDate;
 
 public interface TodoRepository extends JpaRepository<Todo, Long>, TodoRepositoryCustom {
 
-    @Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user u ORDER BY t.modifiedAt DESC")
+    @Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user u ORDER BY t.modifiedAt DESC, t.id DESC")
     Page<Todo> findAllByOrderByModifiedAtDesc(Pageable pageable);
 
-    @Query(value = "SELECT t FROM Todo t LEFT JOIN FETCH t.user u WHERE t.weather = :weather ORDER BY t.modifiedAt DESC",
+    @Query(value = "SELECT t FROM Todo t LEFT JOIN FETCH t.user u WHERE t.weather = :weather ORDER BY t.modifiedAt DESC, t.id DESC",
            countQuery = "SELECT count(t.id) FROM Todo t WHERE t.weather = :weather")
     Page<Todo> findByWeather(@Param("weather") String weather, Pageable pageable);
 
-    @Query(value = "SELECT t FROM Todo t LEFT JOIN FETCH t.user u WHERE DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate ORDER BY t.modifiedAt DESC",
+    @Query(value = "SELECT t FROM Todo t LEFT JOIN FETCH t.user u WHERE DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate ORDER BY t.modifiedAt DESC, t.id DESC",
            countQuery = "SELECT count(t.id) FROM Todo t WHERE DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate")
     Page<Todo> findByPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, Pageable pageable);
 
-    @Query(value = "SELECT t FROM Todo t LEFT JOIN FETCH t.user u WHERE t.weather = :weather AND DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate ORDER BY t.modifiedAt DESC",
+    @Query(value = "SELECT t FROM Todo t LEFT JOIN FETCH t.user u WHERE t.weather = :weather AND DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate ORDER BY t.modifiedAt DESC, t.id DESC",
            countQuery = "SELECT count(t.id) FROM Todo t WHERE t.weather = :weather AND DATE(t.modifiedAt) >= :startDate AND DATE(t.modifiedAt) <= :endDate")
     Page<Todo> findByWeatherAndPeriod(@Param("weather") String weather, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, Pageable pageable);
 }

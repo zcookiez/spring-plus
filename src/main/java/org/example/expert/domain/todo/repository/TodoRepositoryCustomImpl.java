@@ -68,7 +68,7 @@ public class TodoRepositoryCustomImpl implements TodoRepositoryCustom {
                         nicknameContains(nickname)
                 )
                 .groupBy(todo.id)
-                .orderBy(todo.createdAt.desc())
+                .orderBy(todo.modifiedAt.desc(), todo.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
